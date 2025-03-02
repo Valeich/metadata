@@ -60,7 +60,7 @@ def generate_extraction_from_base64(encoded_pdf: str, mime_type="application/pdf
     
     client = genai.Client(
         vertexai=True,
-        project="[PROJECT_NAME]",
+        project="bjb-ocr-poc",
         location="us-central1",
     )
 
