@@ -23,8 +23,6 @@ def extract_metadata_and_text_from_base64(encoded_pdf: str):
         reader = pypdf.PdfReader(pdf_stream)
         metadata = reader.metadata
         
-        extracted_text = ""
-        
         if len(reader.pages) > 0:
             # Extract text from all pages
             extracted_text = "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
