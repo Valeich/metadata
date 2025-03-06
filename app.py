@@ -29,7 +29,6 @@ def extract_metadata_and_text_from_base64(encoded_pdf: str):
         
         return {
             "metadata": metadata if metadata else "No metadata found", 
-            "text": extracted_text if extracted_text else "No text found"
         }
     except Exception as e:
         return {"error": f"Error reading PDF: {e}"}
