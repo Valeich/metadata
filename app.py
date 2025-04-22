@@ -16,21 +16,24 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 def extract_metadata_and_text_from_base64(encoded_pdf: str):
-    """Extracts metadata and text content from a base64-encoded PDF."""
+    """Extracts specific metadata fields from a base64-encoded PDF."""
     try:
         pdf_bytes = base64.b64decode(encoded_pdf)
         pdf_stream = io.BytesIO(pdf_bytes)
         reader = pypdf.PdfReader(pdf_stream)
-        metadata = reader.metadata
-        
-        if len(reader.pages) > 0:
-            # Extract text from all pages
-            extracted_text = "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
-        
-        return {
-            "metadata": metadata if metadata else "No metadata found", 
+        raw_metadata = reader.metadata or {}
+
+        metadata = {
+            "author": raw_metadata.get("/Author"),
+            "created_date": raw_metadata.get("/CreationDate"),
+            "modified_date": raw_metadata.get("/ModDate"),
+            "producer": raw_metadata.get("/Producer"),
+            "creator": raw_metadata.get("/Creator")
         }
+
+        return {"metadata": metadata}
     except Exception as e:
+        logger.exception("Failed to extract metadata")
         return {"error": f"Error reading PDF: {e}"}
 
 @app.route('/extract-metadata', methods=['POST'])
@@ -44,7 +47,7 @@ def extract():
         logger.info("Processing PDF extraction request")
         extraction_result = extract_metadata_and_text_from_base64(data['base64_pdf'])
         
-        return jsonify({"extraction": extraction_result})
+        return jsonify(extraction_result)
     except Exception as e:
         logger.error(f"Unexpected error in request handling: {e}")
         return jsonify({"error": str(e)}), 500
